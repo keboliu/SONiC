@@ -145,6 +145,17 @@ for example:
     ------          ------
     0x0000:         03 04 0b 00 00 00 00 40 08 00 
 
+### c. Check the present status of SFP
+Check the result of command "ethtool -m sfp31  2>/dev/null", if no output, then SFP doesn't present, or SFP is present.
+logic like below:
+
+    ret=$?
+    if [ $ret -eq 1 ]; then
+        # qsfp is not present
+    else
+        # qsfp is present
+    fi
+
 
 ## 2. Set/Get lpmode, TX enable/disable functions
 
@@ -159,11 +170,7 @@ mlnx-sfpd will listen to these message and do the action accordingly.
 how to convey the return value from syncd SX_API to pmon? 
 
 ### Solution 2.
-start a sx_sdk task inside pmon, so can call SX_API directly inside pmon.
+Expose sx_sdk task to pmon, so can call SX_API directly inside pmon.
 
-#### Open Questions
-a. what kind if parameters needed for the init of sx_sdk? 
-
-b. any conflict with current sx_sdk inside syncd?
-
-c. non-tech issue: persuade MSFT/community to accept installing Mellanox specific SDK to common pmon docker.
+#### Open Question
+Need to understand how to expose SDK to pmon, need further investigation.
