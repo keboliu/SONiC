@@ -14,7 +14,7 @@ We can  make use of ethtool to get the needed items from it, to fill the return 
 for example:
 
        
-        root@arc-mtbc-1001:/home/admin# time ethtool -m sfp56
+        root@arc-mtbc-1001:/home/admin# ethtool -m sfp56
         Identifier                                : 0x11 (QSFP28)
         Extended identifier                       : 0x8c
         Extended identifier description           : 2.5W max. Power consumption
@@ -140,7 +140,7 @@ since this function will be called periodically, use ethtool to read out the raw
 
 for example:
 
-    root@arc-mtbc-1001:/home/admin# time ethtool -m sfp37 offset 0 length 10
+    root@arc-mtbc-1001:/home/admin# ethtool -m sfp37 offset 0 length 10
     Offset          Values
     ------          ------
     0x0000:         03 04 0b 00 00 00 00 40 08 00 
