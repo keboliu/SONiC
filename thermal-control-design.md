@@ -12,14 +12,16 @@
   
 ## 1. Overview
 
-Thermal control is to keep the switch at the proper temperature by using cooling devices, e.g., fan.
-Thermal control need to monitor the temperature of devices (CPU, ASIC, ports, etc) to know the thermal status of the switch and to manipulate the fan speed accordingly.
+The purpose of Thermal Control is to keep the switch at a proper temperature by using cooling devices, e.g., fan.
+Thermal control daemon need to monitor the temperature of devices (CPU, ASIC, ports, etc) and the running status of fan, at the same time it need to manipulate the cooling device according to the temperature and related device status.
 
 ## 2. Thermal device monitoring
 
-Thermal monitoring function need to retrieve the switch temperatures via platform APIs, platform APIs not only provide the value of the temperature, but also provide the threshold value, so can know the thermal object status by comparing the current temperature value against the threshold. If it above and under the threshold, alarm shall be raised.
+Thermal monitoring function will retrieve the switch device temperatures via platform APIs, platform APIs not only provide the value of the temperature, but also provide the threshold value. The thermal object status can be deduced by comparing the current temperature value against the threshold. If it above the high threshold or under the low threshold, alarm shall be raised.
 
-Besides device temperature, should also monitoring the fan speed to make sure if the speed is a proper value according to current thermal condition 
+Besides device temperature, shall also monitoring the fan speed to make sure it is running at a proper speed according to current thermal condition. 
+
+Thermal device monitoring will loop at a certain period, 15s can be a good value according the implementation on Mellanox platform.
 
 ## 2.1 Temperature monitoring 
 
@@ -34,23 +36,12 @@ For the purpose of feeding CLI/SNMP or telemetry functions, these values and war
     high_threshold          = FLOAT                          ; temperature high threshold
     low_threshold           = FLOAT                          ; temperature low threshold
     warning_status          = BOOLEAN                        ; temperature warning status
-
-an example for a temperature object in DB
-
     
-    key                     = TEMPERATURE_INFO|CPU   
-    ; field                 = value
-    temperature             = "75"                                             
-    high_threshold          = "110"                         
-    low_threshold           = "-10"                          
-    warning_status          = "true"                        
-    
+### 2.2 Fan device monitoring 
 
-### 2.2 Fan monitoring 
+In most case fan is the device to cool down the switch when the temperature is rising. Thus to make sure fan running at a proper speed is the key for thermal control.
 
-In most case fan is the device to cool down the switch if the temperature rising. Thus to make sure fan running at a proper speed is the key for thermal control.
-
-Fan target speed and speed tolerance was defined, make use of them we can know whether the fan reached and running at the desired speed.
+Fan target speed and speed tolerance was defined, by examining them we can know whether the fan reached at the desired speed.
 
 same as the temperature info, a [table for fan](https://github.com/Azure/SONiC/blob/master/doc/pmon/pmon-enhancement-design.md#153-fan-table) also defined as below:
 
@@ -70,20 +61,46 @@ same as the temperature info, a [table for fan](https://github.com/Azure/SONiC/b
 
 ### 2.3 Syslog for thermal control
 
-If there is temperature above threshold and warning flag set to DB, log also shall be generated to the syslog.
+If there was warning raised inside Thermal Control system, or some significant action performed, log shall be generated to the syslog.
 
-## 3 Thermal control framework proposal for SONiC
+## 3. Cooling device manipulate logic proposal for SONiC
 
-Thermal control is quite vendor specific, maybe vendors already have their own implementation, in below appendix chapter described a Mellanox implementation and which can be take as an reference for a common platform framework. 
+Another part of the Thermal Control daemon is to handle the cooling device.
 
-Use similar methodology to implement one PMON daemon container, to monitor the thermal device and manipulate the cooling devices.
+this part could be very vendor specific, maybe some vendors already have their own implementation, in below Appendix chapter described a Mellanox implementation. It can be taken as an reference for a common cooling device control framework. 
 
-The temperature and fan speed defined for the trip point in below chapter shall be configurable, so different vendors can adapt to the framework. 
+If take Mellanox similar methodology to implement the common framework, the temperature and fan speed defined for the trip point in below Appendix chapter shall be specific to each vendor's device, so different vendors can adapt to the common framework. 
 
-And the thermal control itself can be disabled if the vendor have a in house thermal control implementation.
+And the cooling device manipualte funtion can be disabled if the vendor have their own implementation.
 
+## 4. CLI show command for temperature design
 
-## 4. Open Questions
+ adding a new sub command to the "show platform":
+ 
+	admin@sonic# show platform ?
+	Usage: show platform [OPTIONS] COMMAND [ARGS]...
+
+	  Show platform-specific hardware info
+
+	Options:
+	  -?, -h, --help  Show this message and exit.
+
+	Commands:
+	  mlnx         Mellanox platform specific configuration...
+	  psustatus    Show PSU status information
+	  summary      Show hardware platform information
+	  syseeprom    Show system EEPROM information
+	  temperature  Show fan status information
+	  
+out put of the new CLI
+
+	admin@sonic# show platform temperature
+	NAME    Temperature    High Threshold    Low Threshold     Warning Status
+	-----  -------------  ----------------  ---------------   ----------------
+	CPU        85              110              -10                false
+	ASIC       75              100               0                 false
+
+## 5. Open Questions
 
 ## Appendix
 
@@ -113,15 +130,13 @@ Use step_wise policy for each thermal zone. Set the fan speed according to diffe
 
 a series of trip point is defined to trigger fan speed manipulate.
 
-	Cold,      t < 75 C,       fan pwm speed at 20%                 Do nothing
-	
-	Normal,    75 <= t < 85,   fan speed at pwm speed 20% - 40%     keep minimal speed
-	
-	High,      85 <= t < 105   fan speed at pwm speed 40% - 100%    adjust the fan speed according to the trends
-	
-	Hot        105 <= t < 110  fan speed at 100%                    produce warning
-	
-	Critical   t >= 110        fan speed at 100%                    shutdown
+ |state   |Temperature value(Celsius) |PWM speed                  |Action                                    |
+ |:------:|:-------------------------:|:-------------------------:|:-----------------------------------------|
+ |Cold    |      t < 75 C    | 20%        |   Do nothing                             |
+ |Normal  |    75 <= t < 85  | 20% - 40%  |   keep minimal speed|
+ |High    |  85 <= t < 105   | 40% - 100% | adjust the fan speed according to the trends|
+ |Hot     |  105 <= t < 110  | 100%       | produce warning                           |
+ |Critical|  t >= 110        | 100%       |  shutdown |
 
 ### 1.5 User space daemon
 
