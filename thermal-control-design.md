@@ -107,11 +107,12 @@ out put of the new CLI
 
 ## Mellanox thermal control implementation
 
-Mellanox thermal monitoring measure temperature from the ports and ASIC core. It operates in kernel space and binds PWM(Pulse-Width Modulation) control with Linux thermal zone for each measurement device (ports & core). The thermal algorithm uses step_wise policy which set FANs according to the thermal trends (high temperature = faster fan; lower temperature = slower fan).
+### 1.1 Mellanox thermal Control framework
 
-### 1.1 Mellanox thermal Control framework 
+Mellanox thermal monitoring measure temperature from the ports and ASIC core. It operates in kernel space and binds PWM(Pulse-Width Modulation) control with Linux thermal zone for each measurement device (ports & core). The thermal algorithm uses step_wise policy which set FANs according to the thermal trends (high temperature = faster fan; lower temperature = slower fan). 
 
-The kernel provides a framework for thermal control. It defines a set of concepts, such as thermal zones, trip points, cooling devices, thermal instances, thermal governors. The kernel thermal algorithm uses step_wise policy which set FANs according to the thermal trends (high temperature = faster fan; lower temperature = slower fan). 
+More detail information can refer to Kernel documents https://www.kernel.org/doc/Documentation/thermal/sysfs-api.txt
+and Mellanox HW-management package documents: https://github.com/Mellanox/hw-mgmt/tree/master/Documentation
 
 ### 1.2 Components
 
