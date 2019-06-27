@@ -102,6 +102,7 @@ out put of the new CLI
 
 ## 5. Open Questions
 
+
 ## Appendix
 
 ## Mellanox thermal control implementation
@@ -135,14 +136,7 @@ a series of trip point is defined to trigger fan speed manipulate.
  |Cold    |      t < 75 C    | 20%        |   Do nothing                             |
  |Normal  |    75 <= t < 85  | 20% - 40%  |   keep minimal speed|
  |High    |  85 <= t < 105   | 40% - 100% | adjust the fan speed according to the trends|
- |Hot     |  105 <= t < 110  | 100%       | produce warning                           |
+ |Hot     |  105 <= t < 110  | 100%       | produce warning message                     |
  |Critical|  t >= 110        | 100%       |  shutdown |
 
-### 1.5 User space daemon
-
-Mellanox hw-management package include a user space daemon to change the fan speed according to some external conditions:
-
-1. set fan to full speed if one PSU not present and disable the thermal monitoring in kernel until PSU recovered.
-2. set fan to full speed if one fan not present and disable the thermal monitoring in kernel until fan recovered.
-3. If thermal control was disabled then set the fan speed to 60%.
 	
