@@ -21,7 +21,7 @@ Thermal monitoring function will retrieve the switch device temperatures via pla
 
 Besides device temperature, shall also monitoring the fan speed to make sure it is running at a proper speed according to current thermal condition. 
 
-Thermal device monitoring will loop at a certain period, 15s can be a good value according the implementation on Mellanox platform.
+Thermal device monitoring will loop at a certain period, 60s can be a good value according the experience on Mellanox platform.
 
 ## 2.1 Temperature monitoring 
 
@@ -30,12 +30,14 @@ In new platform API ThermalBase() class provides get_temperature(), get_high_thr
 For the purpose of feeding CLI/SNMP or telemetry functions, these values and warning status can be stored in the state.  DB schema can be like this:
 
     ; Defines information for a thermal object
-    key                     = TEMPERATURE_INFO|object_name   ; name of the thermal objec(CPU, ASIC, Ports...)
+    key                     = TEMPERATURE_INFO|object_name   ; name of the thermal object(CPU, ASIC, Ports...)
     ; field                 = value
-    temperature             = FLOAT                          ; current temerature value                        
+    temperature             = FLOAT                          ; current temperature value                        
     high_threshold          = FLOAT                          ; temperature high threshold
     low_threshold           = FLOAT                          ; temperature low threshold
     warning_status          = BOOLEAN                        ; temperature warning status
+
+These devices shall be added to the temperature monitor list: CPU(per core), ASIC, PSU, Ports.
     
 ### 2.2 Fan device monitoring 
 
@@ -61,7 +63,15 @@ same as the temperature info, a [table for fan](https://github.com/Azure/SONiC/b
 
 ### 2.3 Syslog for thermal control
 
-If there was warning raised inside Thermal Control system, or some significant action performed, log shall be generated to the syslog.
+If there was warning raised or warning cleared, log shall be generated:
+
+	High temperature warning: PSU 1 current temperature 85C, high threshold 80C！
+	High temperature warning cleared, PSU1 temperature restore to 75C, high threshold 80C
+
+If fan broken or become up present, log shall be generated：
+
+	Fan removed warning: Fan 1 was removed from the system, potential overheat hazard!
+	Fan removed warning cleared: Fan 1 was inserted.
 
 ## 3. Cooling device manipulate logic proposal for SONiC
 
@@ -71,7 +81,7 @@ this part could be very vendor specific, maybe some vendors already have their o
 
 If take Mellanox similar methodology to implement the common framework, the temperature and fan speed defined for the trip point in below Appendix chapter shall be specific to each vendor's device, so different vendors can adapt to the common framework. 
 
-And the cooling device manipualte funtion can be disabled if the vendor have their own implementation.
+And the cooling device manipulate function can be disabled if the vendor have their own implementation.
 
 ## 4. CLI show command for temperature design
 
@@ -140,4 +150,13 @@ a series of trip point is defined to trigger fan speed manipulate.
  |Hot     |  105 <= t < 110  | 100%       | produce warning message                     |
  |Critical|  t >= 110        | 100%       |  shutdown |
 
-	
+### 1.5 Thermal control Policies 
+
+Besides kernel’s feature, Mellanox hw-mgmt package provides a userspace daemon to check the status of thermal zone and change the fan speed according to the following policies:
+
+- Set PWM to full speed if one of PS units is not present 
+
+- Set PWM to full speed if one of FAN drawers is not present or one of tachometers is broken present 
+
+- Set the fan speed to a consant value (60% of full speed) thermal control was disabled.
+
