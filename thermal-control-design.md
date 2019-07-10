@@ -110,6 +110,9 @@ out put of the new CLI
 	CPU        85              110              -10                false
 	ASIC       75              100               0                 false
 
+Can consider add an option to this CLI to only print out major device temp, if don't want all of them.
+Major devices can be CPU, ASIC and ports.
+
 ## 5. Open Questions
 
 
