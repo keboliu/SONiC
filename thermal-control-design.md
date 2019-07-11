@@ -13,7 +13,7 @@
 ## 1. Overview
 
 The purpose of Thermal Control is to keep the switch at a proper temperature by using cooling devices, e.g., fan.
-Thermal control daemon need to monitor the temperature of devices (CPU, ASIC, ports, etc) and the running status of fan, at the same time it need to manipulate the cooling device according to the temperature and related device status.
+Thermal control daemon need to monitor the temperature of devices (CPU, ASIC, optical modules, etc) and the running status of fan, at the same time it need to manipulate the cooling device according to the temperature and related device status.
 
 ## 2. Thermal device monitoring
 
@@ -30,14 +30,16 @@ In new platform API ThermalBase() class provides get_temperature(), get_high_thr
 For the purpose of feeding CLI/SNMP or telemetry functions, these values and warning status can be stored in the state.  DB schema can be like this:
 
     ; Defines information for a thermal object
-    key                     = TEMPERATURE_INFO|object_name   ; name of the thermal object(CPU, ASIC, Ports...)
+    key                     = TEMPERATURE_INFO|object_name   ; name of the thermal object(CPU, ASIC, optical modules...)
     ; field                 = value
     temperature             = FLOAT                          ; current temperature value                        
     high_threshold          = FLOAT                          ; temperature high threshold
     low_threshold           = FLOAT                          ; temperature low threshold
     warning_status          = BOOLEAN                        ; temperature warning status
 
-These devices shall be added to the temperature monitor list: CPU(per core), ASIC, PSU, Ports.
+These devices shall be included to the temperature monitor list but not limited to: CPU core, CPU pack, ASIC, PSU, Optical Modules, etc.
+
+TEMPERATURE_INFO Table key object_name convention can be "device_name + index"  or device_name if there is no index, like "cpu_core_0", "asic", "psu_2".
     
 ### 2.2 Fan device monitoring 
 
