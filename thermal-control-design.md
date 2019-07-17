@@ -89,7 +89,7 @@ Besides these polices, as a generic cooling device control framework, there shou
 
 This cooling device control function can be disabled if the vendor have their own implementation in the kernel or somewhere else.
 
-### 3.1 Cooling device control framework
+### 3.1 Cooling device control framework flow
 
 It will be a routing function to check the policies and the perform the algorithm to adjust the fan speed according real-time temperatures.
 
