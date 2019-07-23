@@ -88,7 +88,7 @@ This cooling device control function can be disabled if the vendor have their ow
 
 ### 3.1 Thermal control management flow
 
-It will be a routing function to check the policies and the perform the algorithm to adjust the fan speed according real-time temperatures.
+It will be a routing function to check whether the policies was hit an the fan speed need to adjust, kernel thermal algorithm running status will also be checked.
 
 
 These policies can be:
