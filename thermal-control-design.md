@@ -91,7 +91,7 @@ This cooling device control function can be disabled if the vendor have their ow
 It will be a routing function to check whether the policies was hit an the fan speed need to adjust, kernel thermal algorithm running status will also be checked.
 
 
-These policies can be:
+Below policies that will be applied:
 
 - Set PWM to full speed if one of PS units is not present 
 
@@ -100,11 +100,11 @@ These policies can be:
 - Set the fan speed to a consant value (60% of full speed) Kernel thermal control functions was disabled.
 
 
-Policy check functions will check the FAN and PSU presence and return actions need to take. For example, return value {"fan_1":"60", "fan_2":"None"} means set fan_1 speed to 60% and keep fan_2 current speed.
+Policy check functions will go through the device status and adjus the fan speed if necessary, these check will be preformed by calling the platform new API.
 
 Vendor specific init function and clean up function will be performed at the beginning of the task and at then end of the task.
 
-Above vendor specific functions will be added to a thermal_control base class and leave them for vendor implementation.
+A thermal control daemon class will be deifined with above functions defined, vendors will be allowed to have their own implementation.
 
 ![](https://github.com/keboliu/SONiC/blob/master/images/thermal-control.svg)
 
