@@ -81,17 +81,16 @@ If fan broken or become up present, log shall be generated：
 
 ## 3. Thermal control management
 
-Adjust cooling device according to the current temperature can be very vendor specific and some vendors already have their own implementation In the Kernel. In below Appendix chapter describes a Mellanox implementation. But handle the cooling device according to some predefined policies can be generic, this is what Thermal control management will do.
-
+Adjust cooling device according to the current temperature can be very vendor specific and some vendors already have their own implementation. In below Appendix chapter describes a Mellanox implementation. But handle the cooling device according to some predefined policies can be generic, this is part of what Thermal control management will do.
 
 This cooling device control function can be disabled if the vendor have their own implementation in the kernel or somewhere else.
 
 ### 3.1 Thermal control management flow
 
-It will be a routing function to check whether the policies was hit an the fan speed need to adjust, kernel thermal algorithm running status will also be checked.
+It will be a routing function to check whether the policies was hit an the fan speed need to adjust, and also run vendor specific thermal control algorithm.
 
 
-Below policies that will be applied:
+Suggest below policies that will be applied:
 
 - Set PWM to full speed if one of PS units is not present 
 
