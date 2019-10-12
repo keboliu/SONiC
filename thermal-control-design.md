@@ -98,6 +98,7 @@ Suggest below policies that will be applied:
 
 - Set the fan speed to a consant value (60% of full speed) Kernel thermal control functions was disabled.
 
+FAN status led and PSU status led shall also be set accordingly when policy meet.
 
 Policy check functions will go through the device status and adjus the fan speed if necessary, these check will be preformed by calling the platform new API.
 
@@ -107,9 +108,46 @@ A thermal control daemon class will be deifined with above functions defined, ve
 
 ![](https://github.com/keboliu/SONiC/blob/master/images/thermal-control.svg)
 
+### 3.2 Policy management
 
+Policies are defined in a json file for each hwsku, it's including:
 
-## 4. CLI show command for temperature design
+- Thermal control algorithm control, enabled this hwsku or not, fan speed value to set if not running;
+
+- FAN absence action, suspend the algorithm or not, fan speed value to set;
+
+- PSU absence action, suspend the algorithm or not, fan speed value to set.
+
+Below is an example for the policy configuration:
+
+	{
+	    "thermal_control_algorithm": {
+		"run_at_boot_up": true,
+		"fan_speed_when_suspend": 10000
+	    },
+	    "fan_absence": {
+		"action": {
+		    "thermal_control_algorithm": "disable",
+		    "fan_speed": 10000,
+		    "led_color": "red"
+		}
+	    },
+	    "psu_absence": {
+		"action": {
+		    "thermal_control_algorithm": "disable",
+		    "fan_speed": 10000,
+		    "led_color": "red"
+		}
+	    }
+	}
+
+In this configuration, thermal control algorithm will run on this device; in fan absence situation, the fan speed need to be set to 10000, the thermal control algorithm will be suspended and fan status led shall be set to red ; in psu absence situation, thermal control algorithm will be suspend, fan speed will be set to 10000 and psu status led shall be set to red.
+
+During daemon start, this configuration json file will be loaded and parsed, daemon will handle the thermal control algorithm run and fan speed set when predefined policy meet.
+
+## 4. CLI show command for temperature and fan design
+
+### 4.1 New CLI show command for temperature
 
  adding a new sub command to the "show platform":
  
@@ -138,6 +176,32 @@ out put of the new CLI
 
 An option '--major' provided by this CLI to only print out major device temp, if don't want show all of sensor temperatures.
 Major devices are CPU pack, cpu cores, ASIC and optical modules.
+
+### 4.2 New show CLI for fan status
+
+We don't have a CLI for fan status getting yet, new CLI for fan status could be like below, it's adding a new sub command to the "show platform":
+
+	admin@sonic# show platform ?
+	Usage: show platform [OPTIONS] COMMAND [ARGS]...
+
+	  Show platform-specific hardware info
+
+	Options:
+	  -?, -h, --help  Show this message and exit.
+
+	Commands:
+	  fanstatus  Show fan status information
+	  mlnx       Mellanox platform specific configuration...
+	  psustatus  Show PSU status information
+	  summary    Show hardware platform information
+	  syseeprom  Show system EEPROM information
+The output of the command is like below:
+
+	admin@sonic# show platform fanstatus
+	FAN    Speed      Direction
+	-----  ---------  ---------
+	FAN 1  12919 RPM  Intake
+	FAN 2  13043 RPM  Exhaust
 
 ## 5. Open Questions
 
