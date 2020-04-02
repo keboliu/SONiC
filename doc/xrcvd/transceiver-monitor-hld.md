@@ -231,7 +231,7 @@ In the process of handling SFP change event, a state machine is defined to handl
 
 When error events(defined in section 1.3.1) received from some transceiver, the related interface will be added to the TRANSCEIVER_ERROR table, and DOM information will be removed from the DB. 
 
-Before the DOM update thread update the DOM info, if will check the error table first, it will skip updating the DOM info if some port is in the error table. In the Xcvrd main task recovering missing interface info, same check will also be applied.
+Before the DOM update thread update the DOM info, it will check the error table first, DOM info updating will be skipped if some port is in the error table. In the Xcvrd main task recovering missing interface info, same check will also be applied.
 
 Currently no explicit "error clear event" is defined, a plug in event will be considered as port recovered from error(on Mellanox platform it does send out a plug in event when recovered from error). 
 
