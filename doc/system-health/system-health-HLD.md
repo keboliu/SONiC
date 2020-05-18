@@ -156,12 +156,12 @@ Fault condition and CLI output string table
  | Fault conditon          |CLI output     |
  |:-----------------------:|:-------------:|
  | critical service failure|[service name] is [service status]|
- | Any fan is missing/broken   |[PSU name] is missing/broken|
+ | Any fan is missing/broken   |FAN name] is missing/broken|
  | Fan speed is below minimal range|[FAN name] speed is lower than expected|
  | PSU power voltage is out of range|[PSU name] voltage is out of range|
  | PSU temp is too hot|[PSU name] is overheated|
  | PSU is in bad status|[PSU name] is broken|
- | ASIC temperature is too hot|[PSU number] is overheated|
+ | ASIC temperature is too hot|[ASIC name] is overheated|
  | monit service is not running| monit is not running|
  | PSU data is not available in the DB|PSU data is not available|
  | FAN data is not available in the DB|FAN data is not available|
