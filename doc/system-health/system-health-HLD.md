@@ -4,7 +4,7 @@
 
  | Rev |     Date    |       Author       | Change Description                |
  |:---:|:-----------:|:------------------:|-----------------------------------|
- | 0.1 |             |      Liu Kebo      | Initial version                   |
+ | 0.1 |             |      Kebo Liu      | Initial version                   |
 
 
 
@@ -118,10 +118,10 @@ psud need to collect more PSU data to the DB to satisfy the requirement of this 
 	change_event            = STRING                         ; change event of the psu
 	fan                     = STRING                         ; fan_name of the psu
 	led_status              = STRING                         ; led status of the psu
-        temp                    = INT                            ; temperature of the PSU
-        temp_th                 = INT                            ; temperature threshold
-        voltage                 = INT                            ; output voltage of the PSU
-        voltage_max_th          = INT                            ; max threshold of the output voltage
+	temp                    = INT                            ; temperature of the PSU
+	temp_th                 = INT                            ; temperature threshold
+	voltage                 = INT                            ; output voltage of the PSU
+	voltage_max_th          = INT                            ; max threshold of the output voltage
 	voltage_min_th          = INT                            ; min threshold of the output voltage
 
 ## 5. System health monitor CLI
