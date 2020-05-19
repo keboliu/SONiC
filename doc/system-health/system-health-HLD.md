@@ -58,12 +58,12 @@ By default any above services or file systems is not in good status will be cons
 
 ### 1.2 Peripheral devices status which could impact the system health status
 
-- 1. Any fan is missing/broken
-- 2. Fan speed is below minimal range
-- 3. PSU power voltage is out of range
-- 4. PSU temperature is too hot
-- 5. PSU is in bad status
-- 6. ASIC temperature is too hot
+-  Any fan is missing/broken
+-  Fan speed is below minimal range
+-  PSU power voltage is out of range
+-  PSU temperature is too hot
+-  PSU is in bad status
+-  ASIC temperature is too hot
 
 ### 1.3 Customization of monitored critical services and devices
 The list of monitored critical services and devices can be customizied by a configuration file, user can rule out some services or device sensors status from the monitor list. System health monitor will load this configuration file at the start and ignor the services or devices during the routine check.
@@ -118,10 +118,11 @@ psud need to collect more PSU data to the DB to satisfy the requirement of this 
 	change_event            = STRING                         ; change event of the psu
 	fan                     = STRING                         ; fan_name of the psu
 	led_status              = STRING                         ; led status of the psu
-    temp                    = INT                            ; temperature of the PSU
-    temp_th                 = INT                            ; temperature threshold
-    voltage                 = INT                            ; output voltage of the PSU
-    voltage_th              = INT                            ; threshold of the output voltage
+        temp                    = INT                            ; temperature of the PSU
+        temp_th                 = INT                            ; temperature threshold
+        voltage                 = INT                            ; output voltage of the PSU
+        voltage_max_th          = INT                            ; max threshold of the output voltage
+	voltage_min_th          = INT                            ; min threshold of the output voltage
 
 ## 5. System health monitor CLI
 
@@ -147,14 +148,14 @@ output is like below:
 
 when everything is OK
 
-	admin@sonic# show system-health
+    admin@sonic# show system-health
     System health LED  green
 	Services           OK
 	Hardware           OK
 
 When something is wrong
 
-	admin@sonic# show system-health
+    admin@sonic# show system-health
     System health LED  amber
 	Services           Fault
         orchagent is not running
