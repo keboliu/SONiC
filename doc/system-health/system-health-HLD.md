@@ -10,11 +10,11 @@
 
 ## 1. Overview of the system health monitor
 
-System health monitor is intend to monitor both of critical services and peripheral device status and leverage system health LED to indicate the status.
+System health monitor is intend to monitor both of critical services and peripheral device status and leverage system log, system health LED to and CLI command output to indicate the status.
 
 In current SONiC implementation, already have Monit which is monitoring the critical services status and also have a set of daemons(psud, thermaltcld) inside PMON collecting the peripheral devices status.
 
-System health will not monitor the critical services or devices directly, it will reuse the result of Monit and PMON daemons to summary the current status and decide the color of the system health LED.
+System health will not monitor the critical services or devices directly, it will reuse the result of Monit and PMON daemons to summary the current status and decide the color of the system health status.
 
 ### 1.1 Services under Monit monitoring
 
@@ -54,7 +54,7 @@ For the Monit, now below services and file system is under monitoring:
 	 var-log                          Accessible                  Filesystem
 
 
-Any above services or file systems is not in good status will be considered as fault condition.
+By default any above services or file systems is not in good status will be considered as fault condition.
 
 ### 1.2 Peripheral devices status which could impact the system health status
 
@@ -65,7 +65,21 @@ Any above services or file systems is not in good status will be considered as f
 - 5. PSU is in bad status
 - 6. ASIC temperature is too hot
 
-### 1.3 system status LED color definition
+### 1.3 Customization of monitored critical services and devices
+The list of monitored critical services and devices can be customizied by a configuration file, user can rule out some services or device sensors status from the monitor list. System health monitor will load this configuration file at the start and ignor the services or devices during the routine check.
+
+	{
+	    services_to_ignor: {
+		snmpd,
+		snmp_subagent
+	    },
+	    devices_to_ignor: {
+		psu
+	    }
+
+	}
+
+### 1.4 system status LED color definition
 
  | Color            |     Status    |       Description       |
  |:----------------:|:-------------:|:-----------------------:|
