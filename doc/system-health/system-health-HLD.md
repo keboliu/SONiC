@@ -171,7 +171,7 @@ Fault condition and CLI output string table
  | Fault conditon          |CLI output     |
  |:-----------------------:|:-------------:|
  | critical service failure|[service name] is [service status]|
- | Any fan is missing/broken   |FAN name] is missing/broken|
+ | Any fan is missing/broken   |[FAN name] is missing/broken|
  | Fan speed is below minimal range|[FAN name] speed is lower than expected|
  | PSU power voltage is out of range|[PSU name] voltage is out of range|
  | PSU temp is too hot|[PSU name] is overheated|
