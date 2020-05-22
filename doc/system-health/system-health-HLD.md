@@ -66,14 +66,14 @@ By default any above services or file systems is not in good status will be cons
 -  ASIC temperature is too hot
 
 ### 1.3 Customization of monitored critical services and devices
-The list of monitored critical services and devices can be customizied by a configuration file, user can rule out some services or device sensors status from the monitor list. System health monitor will load this configuration file at the start and ignor the services or devices during the routine check.
+The list of monitored critical services and devices can be customizied by a configuration file, user can rule out some services or device sensors status from the monitor list. System health monitor will load this configuration file at the start and ignore the services or devices during the routine check.
 
 	{
-	    services_to_ignor: {
+	    services_to_ignore: {
 		snmpd,
 		snmp_subagent
 	    },
-	    devices_to_ignor: {
+	    devices_to_ignore: {
 		psu
 	    }
 
@@ -81,11 +81,22 @@ The list of monitored critical services and devices can be customizied by a conf
 
 ### 1.4 system status LED color definition
 
+default system status LED color definition is like 
+
  | Color            |     Status    |       Description       |
  |:----------------:|:-------------:|:-----------------------:|
  | Off              |  off          |   no power              |
- | Blinking amber   |  off          |   in fault status       |
+ | Blinking amber   |  fault        |   in fault status       |
  | Solid green      |  Normal       |   in normal status      |
+
+Considering that different vendors platform may have different LED color capability, so LED color for different status also configurable:
+
+	{
+	    status_led_color: {
+		fault: 'red',
+		normal: 'green'
+	    }
+	}
 
 
 ## 2. System health monitor service business logic
@@ -96,11 +107,9 @@ If monit service is not avalaible, will consider it as fault condition.
 FAN/PSU/ASIC data not available will also considered as fault conditon.
 Threshold data not available will not be considered as a fault condition, in this case will treate the sensor as work normally.
 
-Monit, thermalctld and psud will raise syslog when fault condition encounterd, so system health monitor will not generate syslog on these situation to avoid redundant.
+Monit, thermalctld and psud will raise syslog when fault condition encounterd, so system health monitor will only generate some general syslog on these situation to avoid redundant. For example, when fault condition meet, "system health status change to fault" can be print out, "system health status change to normal" when it recovered.
 
-
-
-this service will be started after pmon service.
+this service will be started after system boot up(after rc.local).
 
 ## 3. Platform API and PMON related change to support this new service
 
@@ -126,6 +135,7 @@ psud need to collect more PSU data to the DB to satisfy the requirement of this 
 
 ## 5. System health monitor CLI
 
+## 5.1 CLI command to show system health monitor status
 Add a new "show system-health" command line to the system
 
 	admin@sonic# show ?
@@ -144,24 +154,44 @@ Add a new "show system-health" command line to the system
       system-health         Show system health status
       ...
 
+"show system-health" CLI has three sub command, "summary" and "detail" and "monitor-list". With command "summary" will give brief outpt of system health status while "detail" will be more verbose.
+"monitor-list" command will list all the services and devices under monitoring.
+
+    admin@sonic# show system-health ?
+	Usage: show system-health [OPTIONS] COMMAND...
+
+	  SONiC command line - 'show system-health' command
+
+	Options:
+	  -?, -h, --help  Show this message and exit.
+
+	Commands:
+	  summary          Show system-health summary infomation
+	  detail           Show system-health detail infomation
+      monitor-list     Show system-health monitored services and devices name list
+
 output is like below:
 
 when everything is OK
 
-    admin@sonic# show system-health
+    admin@sonic# show system-health summary
     System health LED  green
 	Services           OK
 	Hardware           OK
 
 When something is wrong
 
-    admin@sonic# show system-health
+    admin@sonic# show system-health summary
     System health LED  amber
 	Services           Fault
         orchagent is not running
 	Hardware           Fault
         PSU 1 temp 85C and threshold is 70C
         FAN 2 is broken
+
+for the "detail" sub command output, it will give out all the services and devices status which is under monitoring.
+
+"moniter-list" will give a name list of services and devices exclude the ones in the ignore list.
 
 When the CLI been called, it will directly analyze the "monit summary" output and the state DB entries to present a summary about the system health status. 
 
@@ -182,7 +212,29 @@ Fault condition and CLI output string table
  | FAN data is not available in the DB|FAN data is not available|
  | ASIC data is not available in the DB|ASIC data is not available|
 
+## 5.2 CLI command to add/remove monitored service and device from ignore list
+
+As mentioned in previous section, the monitored service and device list can be customizied, to make it more convenient, a cli command provided to manipulate the configuration file.
+
+Add a new "config system-health-monitor-list" command line to the system
+
+	admin@sonic# config system-health-monitor-list ?
+	Usage: config system-health-monitor-ignore-list [OPTIONS] COMMAND [ARGS]...
+
+	  System health monitor command line
+
+	Options:
+	  -?, -h, --help  Show this message and exit.
+
+	Commands:
+	  add            Add a service a device to the monitor ignore list
+	  remove         Remove a service a device to the monitor ignore list
+
+this command line will manipulate the configuration file and restart the system monitor service to make the change take effect.
+
 ## 6. System health Test plan
 
 1. Kill some critical service and check the CLI output, the LED color and error shall be as expected.
 2. Simulate PSU/FAN and related sensor failure via mock sysfs and check the CLI output, the LED color and error shall be as expected.
+3. Change the monitor list via cli and check whether the service works as expected; also check whether the result of "show system-health monitor-list" aligned. 
+
