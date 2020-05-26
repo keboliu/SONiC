@@ -66,7 +66,9 @@ By default any above services or file systems is not in good status will be cons
 -  ASIC temperature is too hot
 
 ### 1.3 Customization of monitored critical services and devices
-The list of monitored critical services and devices can be customizied by a configuration file, user can rule out some services or device sensors status from the monitor list. System health monitor will load this configuration file at the start and ignore the services or devices during the routine check.
+
+#### 1.3.1 Ignore some of monitored critical services and devices
+The list of monitored critical services and devices can be customized by a configuration file, the user can rule out some services or device sensors status from the monitor list. System health monitor will load this configuration file at the start and ignore the services or devices during the routine check.
 
 	{
 	    services_to_ignore: {
@@ -78,6 +80,9 @@ The list of monitored critical services and devices can be customizied by a conf
 	    }
 
 	}
+
+#### 1.3.2 Extend the monitoring with adding user specific program to Monit
+Monit support to check program(scripts) exit status, if user want to monitor something that beyond critical serives or some device not included in the above list, they can provide a specific scripts and add it to Monit check list, then the result can also be collected by the system health monitor.  
 
 ### 1.4 system status LED color definition
 
