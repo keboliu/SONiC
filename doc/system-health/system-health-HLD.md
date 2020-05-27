@@ -81,6 +81,8 @@ The list of monitored critical services and devices can be customized by a confi
 
 	}
 
+This configuration file will be platform specific and shall be added to the platform folder(/usr/share/sonic/device/{platform_name}/system_health_monitoring_config.json).
+
 #### 1.3.2 Extend the monitoring with adding user specific program to Monit
 Monit support to check program(scripts) exit status, if user want to monitor something that beyond critical serives or some device not included in the above list, they can provide a specific scripts and add it to Monit check list, then the result can also be collected by the system health monitor.  
 
@@ -91,14 +93,15 @@ default system status LED color definition is like
  | Color            |     Status    |       Description       |
  |:----------------:|:-------------:|:-----------------------:|
  | Off              |  off          |   no power              |
- | Blinking amber   |  fault        |   in fault status       |
- | Solid green      |  Normal       |   in normal status      |
+ | Blinking amber   |  boot up      |   switch is booting up  |
+ | Red              |  fault        |   in fault status       |
+ | Green            |  Normal       |   in normal status      |
 
 Considering that different vendors platform may have different LED color capability, so LED color for different status also configurable:
 
 	{
 	    status_led_color: {
-		fault: 'red',
+		fault: 'amber',
 		normal: 'green'
 	    }
 	}
@@ -106,11 +109,13 @@ Considering that different vendors platform may have different LED color capabil
 
 ## 2. System health monitor service business logic
 
-System health monitor daemon will running on the host, periodically(every 60s) check the "monit summary" command output and PSU, fan, thermal status which stored in the state DB, if anything wrong with the services monitored by monit or peripheral devices, system status LED will be set to fault status. When fault condition relieved, system status will be set to normal status.
+System health monitor daemon will running on the host, periodically(every 60s) check the "monit summary" command output and PSU, fan, thermal status which stored in the state DB, if anything wrong with the services monitored by monit or peripheral devices, system status LED will be set to fault status. When fault condition relieved, system status will be set to normal status. 
+
+Before the switch boot up finish, the system health monitoring service shall be able to know the switch is in boot up status(see open question 1).
 
 If monit service is not avalaible, will consider it as fault condition.
 FAN/PSU/ASIC data not available will also considered as fault conditon.
-Threshold data not available will not be considered as a fault condition, in this case will treate the sensor as work normally.
+Incomplete data in the DB will also be considered as fault condition, e.g., voltage data is there but threshold data not available.
 
 Monit, thermalctld and psud will raise syslog when fault condition encounterd, so system health monitor will only generate some general syslog on these situation to avoid redundant. For example, when fault condition meet, "system health status change to fault" can be print out, "system health status change to normal" when it recovered.
 
@@ -140,7 +145,6 @@ psud need to collect more PSU data to the DB to satisfy the requirement of this 
 
 ## 5. System health monitor CLI
 
-## 5.1 CLI command to show system health monitor status
 Add a new "show system-health" command line to the system
 
 	admin@sonic# show ?
@@ -171,8 +175,8 @@ Add a new "show system-health" command line to the system
 	  -?, -h, --help  Show this message and exit.
 
 	Commands:
-	  summary          Show system-health summary infomation
-	  detail           Show system-health detail infomation
+	  summary          Show system-health summary information
+	  detail           Show system-health detail information
       monitor-list     Show system-health monitored services and devices name list
 
 output is like below:
@@ -180,30 +184,28 @@ output is like below:
 when everything is OK
 
     admin@sonic# show system-health summary
-    System health LED  green
+    System status LED  green
 	Services           OK
 	Hardware           OK
 
 When something is wrong
 
     admin@sonic# show system-health summary
-    System health LED  amber
+    System status LED  amber
 	Services           Fault
         orchagent is not running
 	Hardware           Fault
         PSU 1 temp 85C and threshold is 70C
         FAN 2 is broken
 
-for the "detail" sub command output, it will give out all the services and devices status which is under monitoring.
+for the "detail" sub command output, it will give out all the services and devices status which is under monitoring, and also the ignored service/device list will also be displayed.
 
 "moniter-list" will give a name list of services and devices exclude the ones in the ignore list.
 
-When the CLI been called, it will directly analyze the "monit summary" output and the state DB entries to present a summary about the system health status. 
-
-The status analyze logic of the CLI shall be aligned/shared with the logic in the system health service.
+When the CLI been called, it will directly analyze the "monit summary" output and the state DB entries to present a summary about the system health status. The status analyze logic of the CLI shall be aligned/shared with the logic in the system health service.
 
 Fault condition and CLI output string table
- | Fault conditon          |CLI output     |
+ | Fault condition         |CLI output     |
  |:-----------------------:|:-------------:|
  | critical service failure|[service name] is [service status]|
  | Any fan is missing/broken   |[FAN name] is missing/broken|
@@ -217,29 +219,15 @@ Fault condition and CLI output string table
  | FAN data is not available in the DB|FAN data is not available|
  | ASIC data is not available in the DB|ASIC data is not available|
 
-## 5.2 CLI command to add/remove monitored service and device from ignore list
-
-As mentioned in previous section, the monitored service and device list can be customizied, to make it more convenient, a cli command provided to manipulate the configuration file.
-
-Add a new "config system-health-monitor-list" command line to the system
-
-	admin@sonic# config system-health-monitor-list ?
-	Usage: config system-health-monitor-ignore-list [OPTIONS] COMMAND [ARGS]...
-
-	  System health monitor command line
-
-	Options:
-	  -?, -h, --help  Show this message and exit.
-
-	Commands:
-	  add            Add a service a device to the monitor ignore list
-	  remove         Remove a service a device to the monitor ignore list
-
-this command line will manipulate the configuration file and restart the system monitor service to make the change take effect.
+See open question 2 for adding configuration CLIs. 
 
 ## 6. System health Test plan
 
 1. Kill some critical service and check the CLI output, the LED color and error shall be as expected.
 2. Simulate PSU/FAN and related sensor failure via mock sysfs and check the CLI output, the LED color and error shall be as expected.
-3. Change the monitor list via cli and check whether the service works as expected; also check whether the result of "show system-health monitor-list" aligned. 
+3. Change the monitor list and restart the service, then check whether the service works as expected; also check whether the result of "show system-health monitor-list" aligned. 
+
+## 7. Open questions
+1. How to determine the SONiC system is in boot up stage ?
+2. Is it necessary to add a CLI to manipulate the configuration file? Like add/remove service/device from ignore list? 
 
