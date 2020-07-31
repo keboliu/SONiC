@@ -31,7 +31,7 @@ The Entity MIB contains several groups of MIB objects, currently SONiC only impl
 		entPhysicalIsFRU          TruthValue
 	}
 ## 2. Current Entity MIB implementation in SONiC
-Now in SONiC implemented part of the MIB objects listed as below:
+Currently SONiC implemented part of the MIB objects listed as below:
 
 	entPhysicalDescr          SnmpAdminString,
 	entPhysicalClass          PhysicalClass, 
@@ -43,14 +43,30 @@ Now in SONiC implemented part of the MIB objects listed as below:
 	entPhysicalMfgName        SnmpAdminString,
 	entPhysicalModelName      SnmpAdminString,
 
-Now only transceivers and it's DOM sensors(Temp, voltage, rx power, tx power and tx bias) are added to the MIB table.
+Now only transceivers and it's DOM sensors(Temp, voltage, rx power, tx power and tx bias) are added to the MIB table:
+
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1000 = STRING: "SFP/SFP+/SFP28 for Ethernet0"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1001 = STRING: "DOM Temperature Sensor for Ethernet0"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1002 = STRING: "DOM Voltage Sensor for Ethernet0"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1011 = STRING: "DOM RX Power Sensor for Ethernet0/1"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1012 = STRING: "DOM TX Bias Sensor for Ethernet0/1"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1013 = STRING: "DOM TX Power Sensor for Ethernet0/1"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1021 = STRING: "DOM RX Power Sensor for Ethernet0/2"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1022 = STRING: "DOM TX Bias Sensor for Ethernet0/2"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1023 = STRING: "DOM TX Power Sensor for Ethernet0/2"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1031 = STRING: "DOM RX Power Sensor for Ethernet0/3"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1032 = STRING: "DOM TX Bias Sensor for Ethernet0/3"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1033 = STRING: "DOM TX Power Sensor for Ethernet0/3"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1041 = STRING: "DOM RX Power Sensor for Ethernet0/4"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1042 = STRING: "DOM TX Bias Sensor for Ethernet0/4"
+	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1043 = STRING: "DOM TX Power Sensor for Ethernet0/4"
 
 ## 3. New extension to Entity MIB implementation
-In this extension aim to implement all the objects in entityPhysical group.
+This extension aim to implement all the objects in entityPhysical group.
 
-Also plan to add more physical entities to such as thermal sensors, fan, and it's tachometers, PSU, PSU fan, and some sensors contained in PSU.
+Also plan to add more physical entities such as thermal sensors, fan, and it's tachometers, PSU, PSU fan, and some sensors contained in PSU.
 
-Another thing need to highlight is that in the current implementation,  currently "entPhysicalContainedIn" object is not implemented, so there is no way to reflect the physical location of the components, this time it will be amended, by this all the IMB instances can be organized in a hierarchy manner, as described in below chart.
+Another thing need to highlight is that in the current implementation, "entPhysicalContainedIn" object is not implemented, so there is no way to reflect the physical location of the components, this time it will be amended, by this all the IMB instances can be organized in a hierarchy manner, see below chart:
 
 	Chassis -
 	         |--MGMT (Chassis)
@@ -75,7 +91,7 @@ Another thing need to highlight is that in the current implementation,  currentl
 
 ## 4. The data source of the MIB entries
 
-Thermalctl daemon, Xcvrd, psud, are collecting physical device info to state DB, now we have PSU_INFO tale, FAN_INFO table, and TEMPERATURE_INFO table which can provide information for MIB entries. 
+Thermalctl daemon, Xcvrd, psud, are collecting physical device info to state DB, now we have PSU_INFO tale, FAN_INFO table, and TEMPERATURE_INFO table which can provide information for MIB instances. 
 
 Thermal sensors MIB info will come from TEMPERATURE_INFO, FAN_INFO will feed to FAN MIB instance and PSU_INFO will be the source of the PSU related instances.
 
@@ -85,7 +101,7 @@ The current already implemented cable and cable DOM sensors getting data from ta
 
 As mentioned in Section 3, currently lack implementation of "entPhysicalContainedIn", and also there is no such kind of info stored in the related tables of state DB. 
 
-To have this kind info available we need to extend the current platform API, can add a new function get_contained_in_device_name to DeviceBase class, this function will return the name of the device which it is contained in. This new field will be populated to state DB by PMON daemons.
+To have this kind info available we need to extend the current platform API, can add a new function "get_contained_in_device_name" to DeviceBase class, this function will return the name of the device which it is contained in. This new field will be populated to state DB by PMON daemons.
 
 ## 5. Entity MIB extension test
 
