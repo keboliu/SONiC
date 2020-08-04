@@ -10,7 +10,7 @@
 
 ## 1. Overview 
 
-The Entity MIB contains several groups of MIB objects, currently SONiC only implemented part of the entityPhysical group following RFC2737. The definition of "entityPhsical" group defined below.
+The Entity MIB contains several groups of MIB objects, currently SONiC only implemented part of the entityPhysical group following RFC2737. The group contains a a single table called "entPhysicalTable" to indentify the pysical components of the system. The MIB objects of "entityPhsical" group listed as below:
 
 	EntPhysicalEntry ::= SEQUENCE {
 		entPhysicalIndex          PhysicalIndex,
@@ -30,8 +30,11 @@ The Entity MIB contains several groups of MIB objects, currently SONiC only impl
 		entPhysicalAssetID        SnmpAdminString,
 		entPhysicalIsFRU          TruthValue
 	}
+
+Detailed information about the MIB objects inside entPhysicalTable can be found in section 3 of RFC2737
+
 ## 2. Current Entity MIB implementation in SONiC
-Currently SONiC implemented part of the MIB objects listed as below:
+Currently SONiC implemented part of the MIB objects in the table:
 
 	entPhysicalDescr          SnmpAdminString,
 	entPhysicalClass          PhysicalClass, 
@@ -43,7 +46,7 @@ Currently SONiC implemented part of the MIB objects listed as below:
 	entPhysicalMfgName        SnmpAdminString,
 	entPhysicalModelName      SnmpAdminString,
 
-Now only transceivers and it's DOM sensors(Temp, voltage, rx power, tx power and tx bias) are added to the MIB table:
+Now only phsical entities as transceivers and it's DOM sensors(Temp, voltage, rx power, tx power and tx bias) are implemented, with snmpwalk can fetch the MIB info:
 
 	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1000 = STRING: "SFP/SFP+/SFP28 for Ethernet0"
 	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1001 = STRING: "DOM Temperature Sensor for Ethernet0"
@@ -64,9 +67,9 @@ Now only transceivers and it's DOM sensors(Temp, voltage, rx power, tx power and
 ## 3. New extension to Entity MIB implementation
 This extension aim to implement all the objects in entityPhysical group.
 
-Also plan to add more physical entities such as thermal sensors, fan, and it's tachometers, PSU, PSU fan, and some sensors contained in PSU.
+Also plan to add more physical entities such as thermal sensors, fan, and it's tachometers; PSU, PSU fan, and some sensors contained in PSU.
 
-Another thing need to highlight is that in the current implementation, "entPhysicalContainedIn" object is not implemented, so there is no way to reflect the physical location of the components, this time it will be amended, by this all the IMB instances can be organized in a hierarchy manner, see below chart:
+Another thing need to highlight is that in the current implementation, "entPhysicalContainedIn" object is not implemented, so there is no way to reflect the physical location of the components, this time it will be amended, by this all the IMB entries can be organized in a hierarchy manner, see below chart:
 
 	Chassis -
 	         |--MGMT (Chassis)
@@ -91,17 +94,43 @@ Another thing need to highlight is that in the current implementation, "entPhysi
 
 ## 4. The data source of the MIB entries
 
-Thermalctl daemon, Xcvrd, psud, are collecting physical device info to state DB, now we have PSU_INFO tale, FAN_INFO table, and TEMPERATURE_INFO table which can provide information for MIB instances. 
+Thermalctl daemon, Xcvrd, psud, are collecting physical device info to state DB, now we have PSU_INFO tale, FAN_INFO table, and TEMPERATURE_INFO table which can provide information for MIB entries. 
 
-Thermal sensors MIB info will come from TEMPERATURE_INFO, FAN_INFO will feed to FAN MIB instance and PSU_INFO will be the source of the PSU related instances.
+Thermal sensors MIB info will come from TEMPERATURE_INFO, FAN_INFO will feed to FAN MIB entries and PSU_INFO will be the source of the PSU related entries.
 
 The current already implemented cable and cable DOM sensors getting data from tables(TRANSCEIVER_INFO and TRANSCEIVER_DOM_SENSOR) which maintained by xcvrd.
 
 ### 4.1 Adding more data to state DB
 
-As mentioned in Section 3, currently lack implementation of "entPhysicalContainedIn", and also there is no such kind of info stored in the related tables of state DB. 
+As mentioned in Section 3, currently lack the implementation of "entPhysicalContainedIn" object, and also there is no such kind of info stored in the state DB. A "contained_in_device" device will be added to the current tables, e.g., extended TEMPERATURE_INFO with the new field:
 
-To have this kind info available we need to extend the current platform API, can add a new function "get_contained_in_device_name" to DeviceBase class, this function will return the name of the device which it is contained in. This new field will be populated to state DB by PMON daemons.
+	; Defines information for a thermal object
+	key                     = TEMPERATURE_INFO|object_name   ; name of the thermal object(CPU, ASIC, optical modules...)
+	; field                 = value
+	temperature             = FLOAT                          ; current temperature value
+	timestamp               = STRING                         ; timestamp for the temperature fetched
+	high_threshold          = FLOAT                          ; temperature high threshold
+	critical_high_threshold = FLOAT                          ; temperature critical high threshold
+	low_threshold           = FLOAT                          ; temperature low threshold
+	critical_low_threshold  = FLOAT                          ; temperature critical low threshold
+	warning_status          = BOOLEAN                        ; temperature warning status
+	contained_in_device     = STRING                         ; name of the device which contains this sensor
+
+To have this kind info available we need to extend the current platform API, can add a new function "get_contained_in_device_name" to DeviceBase class, this function will return the name of the device which it is contained in. This new field will be populated to state DB by related PMON daemons.
+
+	class DeviceBase(object):
+	    """
+	    Abstract base class for interfacing with a generic type of platform
+	    peripheral device
+	    """
+
+	    def get_contained_in_device_name(self):
+		"""
+		Retrieves The name of the device which contains this component
+		Returns:
+		    string: The name of the device
+		"""
+		raise NotImplementedError
 
 ## 5. Entity MIB extension test
 
