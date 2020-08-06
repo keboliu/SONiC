@@ -46,7 +46,7 @@ Currently SONiC implemented part of the MIB objects in the table:
 	entPhysicalMfgName        SnmpAdminString,
 	entPhysicalModelName      SnmpAdminString,
 
-Now only phsical entities as transceivers and it's DOM sensors(Temp, voltage, rx power, tx power and tx bias) are implemented, with snmpwalk can fetch the MIB info:
+Now only physical entities as transceivers and it's DOM sensors(Temp, voltage, rx power, tx power and tx bias) are implemented, with snmpwalk can fetch the MIB info:
 
 	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1000 = STRING: "SFP/SFP+/SFP28 for Ethernet0"
 	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1001 = STRING: "DOM Temperature Sensor for Ethernet0"
@@ -64,8 +64,8 @@ Now only phsical entities as transceivers and it's DOM sensors(Temp, voltage, rx
 	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1042 = STRING: "DOM TX Bias Sensor for Ethernet0/4"
 	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1043 = STRING: "DOM TX Power Sensor for Ethernet0/4"
 
-## 3. New extension to Entity MIB implementation
-This extension aim to implement all the objects in entityPhysical group.
+## 3. A new extension to Entity MIB implementation
+This extension aims to implement all the objects in the entityPhysical group.
 
 Also plan to add more physical entities such as thermal sensors, fan, and it's tachometers; PSU, PSU fan, and some sensors contained in PSU.
 
@@ -136,7 +136,7 @@ To have this kind info available we need to extend the current platform API, can
 
 ### 5.1 Unit test
 
-SNMP unit test for sensors (https://github.com/Azure/sonic-snmpagent/blob/master/tests/test_sensor.py) will be exteneded to cover all the new added MIB objects and phsical components.
+SNMP unit test for sensors (https://github.com/Azure/sonic-snmpagent/blob/master/tests/test_sensor.py) will be extended to cover all the new added MIB objects and physical components.
 
 ### 5.2 Community regression test
 
