@@ -10,7 +10,7 @@
 
 ## 1. Overview 
 
-The Entity MIB contains several groups of MIB objects, currently SONiC only implemented part of the entityPhysical group following RFC2737. The group contains a a single table called "entPhysicalTable" to indentify the pysical components of the system. The MIB objects of "entityPhsical" group listed as below:
+The Entity MIB contains several groups of MIB objects, currently SONiC only implemented part of the entityPhysical group following RFC2737. The group contains a a single table called "entPhysicalTable" to indentify the pysical components of the system. The MIB objects of "entityPhysical" group listed as below:
 
 	EntPhysicalEntry ::= SEQUENCE {
 		entPhysicalIndex          PhysicalIndex,
