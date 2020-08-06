@@ -69,7 +69,7 @@ This extension aim to implement all the objects in entityPhysical group.
 
 Also plan to add more physical entities such as thermal sensors, fan, and it's tachometers; PSU, PSU fan, and some sensors contained in PSU.
 
-Another thing need to highlight is that in the current implementation, "entPhysicalContainedIn" object is not implemented, so there is no way to reflect the physical location of the components, this time it will be amended, by this all the IMB entries can be organized in a hierarchy manner, see below chart:
+Another thing need to highlight is that in the current implementation, "entPhysicalContainedIn" object is not implemented, so there is no way to reflect the physical location of the components, this time it will be amended, by this all the MIB entries can be organized in a hierarchy manner, see below chart:
 
 	Chassis -
 	         |--MGMT (Chassis)
@@ -133,6 +133,14 @@ To have this kind info available we need to extend the current platform API, can
 		raise NotImplementedError
 
 ## 5. Entity MIB extension test
+
+### 5.1 Unit test
+
+SNMP unit test for sensors (https://github.com/Azure/sonic-snmpagent/blob/master/tests/test_sensor.py) will be exteneded to cover all the new added MIB objects and phsical components.
+
+### 5.2 Community regression test
+
+New test cases will be added to cover the new MIB entries:
 
 1. Get temp sensor MIB info and cross-check with the TEMPERATURE_INFO table.
 2. Get fan MIB info and cross-check with the FAN_INFO table.
