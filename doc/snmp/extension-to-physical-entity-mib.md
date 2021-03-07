@@ -431,3 +431,12 @@ PSU Power Sensor:
     SCALE = EntitySensorDataScale.UNITS
     PRECISION = 3
 
+### 2.3 Entity sensor MIB test extension
+
+#### 2.3.1 Unit test
+
+SNMP unit test for sensors (https://github.com/Azure/sonic-snmpagent/blob/master/tests/test_sensor.py) will be extended to cover all the new added sensors MIB objects.
+
+#### 2.3.2 Community regression test
+
+SNMP Entity community regression test (https://github.com/Azure/sonic-mgmt/blob/master/tests/snmp/test_snmp_phy_entity.py) will be extended to cover all the new added sensors.
