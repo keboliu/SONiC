@@ -37,7 +37,7 @@ The Entity MIB contains several groups of MIB objects: entityPhysical group, ent
 
 Detailed information about the MIB objects inside entPhysicalTable can be found in section 3 of RFC2737
 
-### 1.2. Current Entity MIB implementation in SONiC
+### 1.2 Current Entity MIB implementation in SONiC
 Currently SONiC implemented part of the MIB objects in the table:
 
 	entPhysicalDescr          SnmpAdminString,
@@ -68,7 +68,7 @@ Now only physical entities as transceivers and its DOM sensors(Temp, voltage, rx
 	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1042 = STRING: "DOM TX Bias Sensor for Ethernet0/4"
 	SNMPv2-SMI::mib-2.47.1.1.1.1.2.1043 = STRING: "DOM TX Power Sensor for Ethernet0/4"
 
-### 1.3. A new extension to Entity MIB implementation
+### 1.3 A new extension to Entity MIB implementation
 This extension aims to implement all the objects in the entityPhysical group.
 
 Also plan to add more physical entities such as thermal sensors, fan, and its tachometers; PSU, PSU fan, and some sensors contained in PSU.
@@ -96,7 +96,7 @@ Another thing need to highlight is that in the current implementation, "entPhysi
                             |--DOM TX Bias Sensor for Ethernet(x)/(y) (Bias sensor)
 
 
-### 1.4. The data source of the MIB entries
+### 1.4 The data source of the MIB entries
 
 Thermalctl daemon, xcvrd, psud, are collecting physical device info to state DB, now we have PSU_INFO tale, FAN_INFO table, and TEMPERATURE_INFO table which can provide information for MIB entries.
 
@@ -360,7 +360,7 @@ Port Sensor Type describes below:
 5 - Voltage
 ```
 
-### 1.5. Entity MIB extension test
+### 1.5 Entity MIB extension test
 
 #### 1.5.1 Unit test
 
@@ -375,3 +375,59 @@ New test cases will be added to cover the new MIB entries:
 3. Get PSU related MIB info and cross-check with PSU_INFO and related tables
 4. Remove/Add DB entries from related tables to see whether MIB info can be correctly updated.
 5. Currently, each platform API is tested by sonic-mgmt, see [here](https://github.com/Azure/sonic-mgmt/tree/master/tests/platform_tests/api). We will add regression test case for each newly added platform API to verify them.
+
+
+## 2. Entity Sensor MIB Extension
+
+### 2.1 Entity Sensor MIB Extension Scope
+
+Currently SONiC already have a RFC3433 Entity sensor MIB implementation,  Transceiver embeded sensors like temperature, voltage, rx_power, tx_power and tx_bias are alreay included. After Entity MIB was extended as desribed in Section 1, Entity MIB will also be extened to cover more sensors. 
+Thermal sensors besides the Transceiver embeded thermal sensors which avalaible in the STATE_DB will all be add to the Entity Sensor MIB support.
+PSU temperature, voltage, power and current will added, FAN tachometer will be added as well.
+
+### 2.1 Entity Sensor MIB Data Source
+
+All new added MIB will be initilized and updated based on the data stored in the STATE_DB, to be more specific:
+Thermal sensors data source will be the "TEMPERATURE_INFO" table,  PSU MIB entries will be fetched from "PSU_INFO" table and "FAN_INFO" is the source of FAN tachometers.
+
+### 2.2 New added sensors detail description
+
+FAN speed sensor:
+
+    TYPE = EntitySensorDataType.UNKNOWN
+    SCALE = EntitySensorDataScale.UNITS
+    PRECISION = 0
+
+Thermal sensors:
+
+    TYPE = EntitySensorDataType.CELSIUS
+    SCALE = EntitySensorDataScale.UNITS
+    PRECISION = 1
+
+PSU Temp Sensor:
+    
+    TYPE = EntitySensorDataType.CELSIUS
+    SCALE = EntitySensorDataScale.UNITS
+    PRECISION = 1
+
+
+PSU Voltage Sensor:
+    
+    TYPE = EntitySensorDataType.VOLTS_DC
+    SCALE = EntitySensorDataScale.UNITS
+    PRECISION = 3
+
+
+PSU Current Sensor
+    
+    TYPE = EntitySensorDataType.AMPERES
+    SCALE = EntitySensorDataScale.UNITS
+    PRECISION = 3
+
+
+PSU Power Sensor:
+    
+    TYPE = EntitySensorDataType.WATTS
+    SCALE = EntitySensorDataScale.UNITS
+    PRECISION = 3
+
